@@ -51,10 +51,12 @@ object FrameFunctions {
     val gnom_dist = degToGnom(r)
 
     val join = if (useSMJOptim)
-        df1.join(df2, df1("zone") === df2("zone") and (df1("ra") between(df2("ra") - r, df2("ra") + r)))
+        df1.join(df2, df1("zone") === df2("zone") and 
+                      (abs(df1("ra") - df2("ra"))*cos(radians((df1("dec")+df2("dec")/2))) < r))
       else
-        df1.join(df2, df1("zone") === df2("zone") and (df1("ra") between(df2("ra") - r, df2("ra") + r)) and
-          (df1("dec") between(df2("dec") - r, df2("dec") + r)))
+        df1.join(df2, df1("zone") === df2("zone") and
+                      (abs(df1("ra") - df2("ra"))*cos(radians((df1("dec")+df2("dec")/2))) < r) and
+                      (df1("dec") between(df2("dec") - r, df2("dec") + r)))
 
     var distcolname = "axsdist"
     if (returnMin) {
