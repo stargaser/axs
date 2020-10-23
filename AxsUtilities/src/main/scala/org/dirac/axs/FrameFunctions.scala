@@ -5,6 +5,7 @@ package org.dirac.axs
 import org.apache.spark.sql.expressions.{UserDefinedFunction, Window}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{Column, DataFrame, Dataset, Row}
+import org.apache.spark.sql.functions.lit
 
 class FrameFunctions {
 
@@ -52,10 +53,12 @@ object FrameFunctions {
 
     val join = if (useSMJOptim)
         df1.join(df2, df1("zone") === df2("zone") and 
-                      (abs(df1("ra") - df2("ra"))*cos(radians((df1("dec")+df2("dec"))/2)) < r))
+                      (df1("ra") between(df2("ra") - lit(r)/cos(radians(df2("dec"))),
+                                         df2("ra") + lit(r)/cos(radians(df2("dec"))))))
       else
         df1.join(df2, df1("zone") === df2("zone") and
-                      (abs(df1("ra") - df2("ra"))*cos(radians((df1("dec")+df2("dec"))/2)) < r) and
+                      (df1("ra") between(df2("ra") - lit(r)/cos(radians(df2("dec"))),
+                                         df2("ra") + lit(r)/cos(radians(df2("dec"))))) and
                       (df1("dec") between(df2("dec") - r, df2("dec") + r)))
 
     var distcolname = "axsdist"
