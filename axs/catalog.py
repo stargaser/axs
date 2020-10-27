@@ -1,4 +1,5 @@
 
+import numpy as np
 from axs.axsframe import AxsFrame
 from axs import Constants
 from pyspark.sql import functions as F
@@ -219,9 +220,9 @@ class AxsCatalog:
         return df.where(((df.dec + 90) > zone_height) & (
                 (df.dec + 90) % zone_height < AxsCatalog.NGBR_BORDER_HEIGHT)).\
                 withColumn("zone", ((df.dec + 90) / zone_height - 1).cast("long")). \
-                withColumn("dup", F.lit(1)).\
+                withColumn("dup", F.lit(1)).withColumn("racosdec", df.ra*np.cos(df.dec*np.pi/180)).\
             union(df.withColumn("zone", ((df.dec + 90) / zone_height).cast("long")).
-                withColumn("dup", F.lit(0)))
+                withColumn("dup", F.lit(0)).withColumn("racosdec", df.ra*np.cos(df.dec*np.pi/180)))
 
     def add_increment(self, table_name, increment_df, rename_to=None, temp_tbl_name=None):
         """
