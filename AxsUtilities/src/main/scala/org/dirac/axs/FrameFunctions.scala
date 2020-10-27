@@ -38,7 +38,7 @@ object FrameFunctions {
 
   def crossmatch(ds1: Dataset[Row], ds2: Dataset[Row], r: Double, useSMJOptim: Boolean = true, returnMin: Boolean = false,
                  include_dist: Boolean = true): DataFrame = {
-    val df1 = ds1.asInstanceOf[DataFrame]
+    val df1 = ds1.asInstanceOf[DataFrame].withColumn("cosdec", cos(radians(ds1("dec")))) 
     var df2 = ds2.asInstanceOf[DataFrame].withColumnRenamed("dup", "dup2")
     for (c <- df1.columns) {
       if (!c.equals("zone") && !c.equals("ra") && !c.equals("dec") && df2.columns.contains(c)) {
@@ -53,12 +53,10 @@ object FrameFunctions {
 
     val join = if (useSMJOptim)
         df1.join(df2, df1("zone") === df2("zone") and 
-                      (df1("ra") between(df2("ra") - lit(r)/cos(radians(df2("dec"))),
-                                         df2("ra") + lit(r)/cos(radians(df2("dec"))))))
+                      (df1("racosdec") between(df2("axs_racosdec") - r, df2("axs_racosdec") + r)))
       else
         df1.join(df2, df1("zone") === df2("zone") and
-                      (df1("ra") between(df2("ra") - lit(r)/cos(radians(df2("dec"))),
-                                         df2("ra") + lit(r)/cos(radians(df2("dec"))))) and
+                      (df1("racosdec") between(df2("axs_racosdec") - r, df2("axs_racosdec") + r)) and
                       (df1("dec") between(df2("dec") - r, df2("dec") + r)))
 
     var distcolname = "axsdist"
