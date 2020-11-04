@@ -20,6 +20,7 @@ class AxsCatalog:
     DEC_COLNAME = "dec"
     DUP_COLNAME = "dup"
     ZONE_COLNAME = "zone"
+    RACOSDEC_COLNAME = "racosdec"
 
     NUM_BUCKETS = Constants.NUM_BUCKETS
 
@@ -216,6 +217,8 @@ class AxsCatalog:
                             "' column already exists.")
         if AxsCatalog.DUP_COLNAME in df.columns:
             raise Exception("Cannot save as AXS table: '"+AxsCatalog.DUP_COLNAME+"' column already exists")
+        if AxsCatalog.RACOSDEC_COLNAME in df.columns:
+            raise Exception("Cannot save as AXS table: '"+AxsCatalog.RACOSDEC_COLNAME+"' column already exists")
 
         df = df.withColumn("racosdec", F.col("ra")*F.cos(F.radians(F.col("dec"))))
 
