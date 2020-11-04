@@ -228,7 +228,7 @@ class AxsCatalog:
                 withColumn("dup", F.lit(1)).
                 withColumn("racosdec", (F.col("ra") + 360)*F.cos(F.radians(F.col("dec")))).
                 withColumn("ra", df.ra + 360.0)).\
-            union(df.where(((360 - df.ra) > AxsCatalog.NGBR_BORDER_HEIGHT/F.cos(F.radians(F.col("dec")))) & (df.ra <= 360.0)).\
+            union(df.where(((360 - df.ra) < AxsCatalog.NGBR_BORDER_HEIGHT/F.cos(F.radians(F.col("dec")))) & (df.ra <= 360.0)).\
                 withColumn("zone",  ((df.dec +90) / zone_height).cast("long")).
                 withColumn("dup", F.lit(1)).
                 withColumn("racosdec", (F.col("ra") - 360)*F.cos(F.radians(F.col("dec")))).
