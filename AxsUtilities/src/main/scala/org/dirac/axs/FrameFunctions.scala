@@ -13,7 +13,7 @@ class FrameFunctions {
 
 object FrameFunctions {
   def calcGnom = (r1: Double, r2: Double, d1: Double, d2: Double, rcd1: Double, rcd2: Double) => {
-    val doNotCalc = (Math.abs(rcd1 - rcd2) > 1 && Math.abs(rcd1 - rcd2 - 360) > 1) || Math.abs(d1 - d2) > 1
+    val doNotCalc = (Math.abs(rcd1 - rcd2) > 1) || (Math.abs(d1 - d2) > 1)
     if (doNotCalc) {
       Double.MaxValue
     } else {
@@ -21,7 +21,7 @@ object FrameFunctions {
       val ra2 = r2 / 180 * Math.PI
       val dec1 = d1 / 180 * Math.PI
       val dec2 = d2 / 180 * Math.PI
-      val ra = Math.min(Math.abs(ra1 - ra2), 2*Math.PI - (Math.abs(ra1 - ra2)))
+      val ra = Math.abs(ra1 - ra2)
       val dec = Math.abs(dec1 - dec2)
       val cosdec = Math.cos((dec1 + dec2)/2)
       val cosc = Math.cos(ra) * Math.cos(dec)
