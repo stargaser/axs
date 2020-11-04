@@ -228,13 +228,13 @@ class AxsCatalog:
                 withColumn("dup", F.lit(1)).
                 withColumn("racosdec", (F.col("ra") + 360)*F.cos(F.radians(F.col("dec")))).
                 withColumn("ra", df.ra + 360.0)).\
-            union(df.where(((360 - df.ra) > AxsCatalog.NGBR_BORDER_HEIGHT/np.cos(np.radians(df.dec))) & (df.ra <= 360.0)).\
+            union(df.where(((360 - df.ra) > AxsCatalog.NGBR_BORDER_HEIGHT/F.cos(F.radians(F.col("dec")))) & (df.ra <= 360.0)).\
                 withColumn("zone",  ((df.dec +90) / zone_height).cast("long")).
                 withColumn("dup", F.lit(1)).
                 withColumn("racosdec", (F.col("ra") - 360)*F.cos(F.radians(F.col("dec")))).
                 withColumn("ra", df.ra - 360.0)).\
             union(df.withColumn("zone", ((df.dec + 90) / zone_height).cast("long")).
-                withColumn("dup", F.lit(0))
+                withColumn("dup", F.lit(0)))
 
     def add_increment(self, table_name, increment_df, rename_to=None, temp_tbl_name=None):
         """
