@@ -38,10 +38,10 @@ object FrameFunctions {
 
   def crossmatch(ds1: Dataset[Row], ds2: Dataset[Row], r: Double, useSMJOptim: Boolean = true, returnMin: Boolean = false,
                  include_dist: Boolean = true): DataFrame = {
-    val df1 = ds1.asInstanceOf[DataFrame].withColumn("cosdec", cos(radians(ds1("dec")))) 
+    val df1 = ds1.asInstanceOf[DataFrame]
     var df2 = ds2.asInstanceOf[DataFrame].withColumnRenamed("dup", "dup2")
     for (c <- df1.columns) {
-      if (!c.equals("zone") && !c.equals("ra") && !c.equals("dec") && df2.columns.contains(c)) {
+      if (!c.equals("zone") && !c.equals("ra") && !c.equals("dec") && !c.equals("racosdec") && df2.columns.contains(c)) {
         df2 = df2.withColumnRenamed(c, "axs_"+c)
       }
     }
@@ -64,10 +64,11 @@ object FrameFunctions {
       distcolname = "axsdisttemp"
     }
     val join2 = join.withColumn(distcolname, calcGnomUdf.get(df1("ra"), df2("ra"), df1("dec"), df2("dec"))).
-      withColumn("ratemp", df1("ra")).withColumn("dectemp", df1("dec")).withColumn("zonetemp", df1("zone")).
-      drop("zone").drop("ra").drop("dec").
+      withColumn("ratemp", df1("ra")).withColumn("dectemp", df1("dec")).withColumn("racosdectemp", df1("racosdec")).
+      withColumn("zonetemp", df1("zone")).drop("zone").drop("ra").drop("dec").drop("racosdec").
       withColumnRenamed("ratemp", "ra").
       withColumnRenamed("dectemp", "dec").
+      withColumnRenamed("racosdectemp", "racosdec").
       withColumnRenamed("zonetemp", "zone").
       where((new Column(distcolname) lt gnom_dist) and ((join("dup") === 0) or (join("dup2") === 0)))
 
