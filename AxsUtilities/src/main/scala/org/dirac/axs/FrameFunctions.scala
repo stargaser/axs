@@ -53,10 +53,10 @@ object FrameFunctions {
 
     val join = if (useSMJOptim)
         df1.join(df2, df1("zone") === df2("zone") and 
-                      (df1("racosdec") between(df2("axs_racosdec") - r, df2("axs_racosdec") + r)))
+                      (df1("racosdec") between(df2("racosdec") - r, df2("racosdec") + r)))
       else
         df1.join(df2, df1("zone") === df2("zone") and
-                      (df1("racosdec") between(df2("axs_racosdec") - r, df2("axs_racosdec") + r)) and
+                      (df1("racosdec") between(df2("racosdec") - r, df2("racosdec") + r)) and
                       (df1("dec") between(df2("dec") - r, df2("dec") + r)))
 
     var distcolname = "axsdist"
