@@ -12,8 +12,8 @@ class FrameFunctions {
 }
 
 object FrameFunctions {
-  def calcGnom = (r1: Double, r2: Double, d1: Double, d2: Double) => {
-    val doNotCalc = (Math.abs(r1 - r2) > 1 && Math.abs(r1 - r2 - 360) > 1) || Math.abs(d1 - d2) > 1
+  def calcGnom = (r1: Double, r2: Double, d1: Double, d2: Double, rcd1: Double, rcd2: Double) => {
+    val doNotCalc = (Math.abs(rcd1 - rcd2) > 1 && Math.abs(rcd1 - rcd2 - 360) > 1) || Math.abs(d1 - d2) > 1
     if (doNotCalc) {
       Double.MaxValue
     } else {
@@ -63,7 +63,8 @@ object FrameFunctions {
     if (returnMin) {
       distcolname = "axsdisttemp"
     }
-    val join2 = join.withColumn(distcolname, calcGnomUdf.get(df1("ra"), df2("ra"), df1("dec"), df2("dec"))).
+    val join2 = join.withColumn(distcolname, 
+             calcGnomUdf.get(df1("ra"), df2("ra"), df1("dec"), df2("dec"), df1("racosdec"), df2("racosdec"))).
       withColumn("ratemp", df1("ra")).withColumn("dectemp", df1("dec")).withColumn("racosdectemp", df1("racosdec")).
       withColumn("zonetemp", df1("zone")).drop("zone").drop("ra").drop("dec").drop("racosdec").
       withColumnRenamed("ratemp", "ra").
