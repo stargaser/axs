@@ -217,12 +217,24 @@ class AxsCatalog:
         if AxsCatalog.DUP_COLNAME in df.columns:
             raise Exception("Cannot save as AXS table: '"+AxsCatalog.DUP_COLNAME+"' column already exists")
 
+        df = df.withColumn("racosdec", F.col("ra")*F.cos(F.radians(F.col("dec"))))
+
         return df.where(((df.dec + 90) > zone_height) & (
                 (df.dec + 90) % zone_height < AxsCatalog.NGBR_BORDER_HEIGHT)).\
-                withColumn("zone", ((df.dec + 90) / zone_height - 1).cast("long")). \
-                withColumn("dup", F.lit(1)).withColumn("racosdec", df.ra*np.cos(df.dec*np.pi/180)).\
+                withColumn("zone", ((df.dec + 90) / zone_height - 1).cast("long")).\
+                withColumn("dup", F.lit(1)).\
+            union(df.where((df.ra > 0) & (df.racosdec < AxsCatalog.NGBR_BORDER_HEIGHT)).\
+                withColumn("zone",  ((df.dec +90) / zone_height).cast("long")).
+                withColumn("dup", F.lit(1)).
+                withColumn("racosdec", (F.col("ra") + 360)*F.cos(F.radians(F.col("dec")))).
+                withColumn("ra", df.ra + 360.0)).\
+            union(df.where(((360 - df.ra) > AxsCatalog.NGBR_BORDER_HEIGHT/np.cos(np.radians(df.dec))) & (df.ra <= 360.0)).\
+                withColumn("zone",  ((df.dec +90) / zone_height).cast("long")).
+                withColumn("dup", F.lit(1)).
+                withColumn("racosdec", (F.col("ra") - 360)*F.cos(F.radians(F.col("dec")))).
+                withColumn("ra", df.ra - 360.0)).\
             union(df.withColumn("zone", ((df.dec + 90) / zone_height).cast("long")).
-                withColumn("dup", F.lit(0)).withColumn("racosdec", df.ra*np.cos(df.dec*np.pi/180)))
+                withColumn("dup", F.lit(0))
 
     def add_increment(self, table_name, increment_df, rename_to=None, temp_tbl_name=None):
         """
