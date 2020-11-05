@@ -21,11 +21,12 @@ object FrameFunctions {
       val ra2 = r2 / 180 * Math.PI
       val dec1 = d1 / 180 * Math.PI
       val dec2 = d2 / 180 * Math.PI
-      val ra = Math.abs(ra1 - ra2)
-      val dec = Math.abs(dec1 - dec2)
       val cosdec = Math.cos((dec1 + dec2)/2)
-      val cosc = Math.cos(ra) * Math.cos(dec)
-      Math.sqrt(Math.pow(cosdec, 2) * Math.pow(Math.sin(ra), 2) +
+      val ra = Math.abs(ra1 - ra2)*cosdec
+      val dec = Math.abs(dec1 - dec2)
+      val cosdecdiff = Math.cos(dec)
+      val cosc = Math.cos(ra) * cosdecdiff
+      Math.sqrt(Math.pow(cosdecdiff, 2) * Math.pow(Math.sin(ra), 2) +
         Math.pow(Math.sin(dec), 2)) / cosc
     }
   }
